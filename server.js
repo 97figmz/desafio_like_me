@@ -54,6 +54,52 @@ app.post("/posts", async (req, res) => {
     }
 });
 
+app.put("/posts/like/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const consulta = `
+            UPDATE posts
+            SET likes = likes + 1
+            WHERE id = $1
+            RETURNING *
+        `;
+
+        const valores = [id];
+
+        const { rows } = await pool.query(consulta, valores);
+
+        res.json(rows[0]);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            mensaje: "Error al dar like al post"
+        });
+    }
+});
+
+app.delete("/posts/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const consulta = `
+            DELETE FROM posts
+            WHERE id = $1
+            RETURNING *
+        `;
+
+        const valores = [id];
+
+        const { rows } = await pool.query(consulta, valores);
+
+        res.json(rows[0]);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            mensaje: "Error al eliminar el post"
+        });
+    }
+});
 
 app.listen(PORT, () => {
     console.log(`Servidor corriendo en http://localhost:${PORT}`);
